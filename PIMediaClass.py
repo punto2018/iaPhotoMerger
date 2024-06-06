@@ -4,7 +4,6 @@ import PIUtils
 
 
 class MediaFile:
-    date_format = "%Y-%m-%d %H:%M:%S %z"
 
     path = ""
     hashing = ""
@@ -59,29 +58,29 @@ class MediaFile:
             #2024-05-25 11:20:54 +0000
             #parsed_date = datetime.strptime(date_string, date_format)
             datesFound = []
-            date_format = self.date_format
 
             cmd = 'mdls "%s"' % self.path
             output_a = PIUtils.execute_command(cmd)
             output = output_a.splitlines()
 
-            for l in output:
-                if "kMDItemKind" in l:
-                    kind = l.split("= ")[1]
+            for line in output:
+                if "kMDItemKind" in line:
+                    kind = line.split("= ")[1]
                     kind = kind.replace('"', '')
                     self.kind = kind
 
-                if "kMDItemAcquisitionModel" in l:
-                    camera = l.split("= ")[1]
+                if "kMDItemAcquisitionModel" in line:
+                    camera = line.split("= ")[1]
                     camera = camera.replace('"', '')
                     self.camera = camera
 
-                if "kMDItemFSName" in l:
-                    filename = l.split("= ")[1]
+                if "kMDItemFSName" in line:
+                    filename = line.split("= ")[1]
                     filename = filename.replace('"', '')
                     self.filename = filename
 
-                aDate = PIUtils.parse_date(l)
+                aDate = PIUtils.parse_date(line)
+
                 if aDate is not None:
                     logger.debug("Appending a new date " + str(aDate))
                     datesFound.append(aDate)
@@ -111,5 +110,3 @@ class MediaFile:
             return part[len(part) - 1].lower()
         except Exception as e:
             return "NONE"
-
-

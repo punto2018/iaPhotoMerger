@@ -16,7 +16,7 @@ file_handler.setLevel(logging.DEBUG)
 
 # Creazione di un handler per la console con livello INFO
 console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.INFO)
+console_handler.setLevel(logging.DEBUG)
 
 # Creazione di un formatter e aggiunta agli handler
 formatter = logging.Formatter('%(levelname)s - %(message)s')
@@ -27,9 +27,9 @@ console_handler.setFormatter(formatter)
 #logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
-# Utilizzo del logger
-logger.debug("Questo è un messaggio di debug")
-logger.info("Questo è un messaggio di info")
-logger.warning("Questo è un messaggio di warning")
-logger.error("Questo è un messaggio di errore")
-logger.critical("Questo è un messaggio critico")
+# # Utilizzo del logger
+# logger.debug("Questo è un messaggio di debug")
+# logger.info("Questo è un messaggio di info")
+# logger.warning("Questo è un messaggio di warning")
+# logger.error("Questo è un messaggio di errore")
+# logger.critical("Questo è un messaggio critico")

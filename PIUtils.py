@@ -2,6 +2,10 @@ from PILogger import logger
 import os
 import hashlib
 import subprocess
+from datetime import datetime
+
+date_format = "%Y-%m-%d %H:%M:%S %z"
+
 
 def get_hash_by_file(mypath=""):
     func = getattr(hashlib, "md5")()
@@ -13,14 +17,15 @@ def get_hash_by_file(mypath=""):
 
 
 def execute_command(command):
-    logger.debug("Executing command "+command)
+    logger.debug("Executing command " + command)
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     # Output del comando
     output = result.stdout
     # Output dell'errore (se presente)
     #error = result.stderr
-    logger.debug("Output: "+output)
+    logger.debug("Output: " + output)
     return output
+
 
 def parse_date(aLine):
     try:
@@ -28,8 +33,9 @@ def parse_date(aLine):
             datetime_str = aLine.split("= ")[1]
             datetime_str = datetime_str.replace('"', '')
             if len(datetime_str) > 0:
-                aValidDate = datetime.strptime(datetime_str, self.date_format)
+                aValidDate = datetime.strptime(datetime_str, date_format)
                 return aValidDate
         return None
     except Exception as e:
+        #logger.debug("parse_date: " + str(e))
         return None
