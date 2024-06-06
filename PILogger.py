@@ -1,11 +1,17 @@
 import logging
+import os
+
+try:
+    os.makedirs("log")
+except FileExistsError:
+    pass
 
 # Creazione del logger
 logger = logging.getLogger('esempio_logger')
 logger.setLevel(logging.DEBUG)  # Imposta il livello di logging per il logger
 
 # Creazione di un handler per il file con livello DEBUG
-file_handler = logging.FileHandler('debug.log')
+file_handler = logging.FileHandler('log/debug.log')
 file_handler.setLevel(logging.DEBUG)
 
 # Creazione di un handler per la console con livello INFO
