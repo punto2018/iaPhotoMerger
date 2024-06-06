@@ -2,6 +2,8 @@ from threading import Thread
 import traceback
 from PILogger import logger
 
+
+
 class MyThread(Thread):
     err = None
     def run(self):
