@@ -9,6 +9,8 @@ from PIManager import SKIP_COPY
 from PIManager import SKIP_DUPLICATES
 from PIManager import CLEAR_DEST
 from PIManager import SKIP_LOW_RES
+from PIManager import ONLY_LOW_RES
+
 
 
 import PILoader
@@ -89,9 +91,10 @@ if not SKIP_COPY:
         PIPostprocessing.clear_folder(PIManager.destinationVolume)
 
     logger.info("Start copy files:")
-    PIPostprocessing.copyFiles(PIManager.destinationVolume, PIManager.extensionsToCopy_photo, PIManager.extensionsToCopy_docs)
-    PIPostprocessing.copyDocuments(PIManager.destinationVolume, PIManager.extensionsToCopy_docs)
 
+    if not ONLY_LOW_RES:
+        PIPostprocessing.copyFiles(PIManager.destinationVolume, PIManager.extensionsToCopy_photo, PIManager.extensionsToCopy_docs)
+        PIPostprocessing.copyDocuments(PIManager.destinationVolume, PIManager.extensionsToCopy_docs)
     if not SKIP_LOW_RES:
         PIPostprocessing.generateLowResCopyForPhone_p(PIManager.destinationVolume, PIManager.extensionsToCopy_photo)
         PIPostprocessing.lowResRatio()

@@ -22,6 +22,7 @@ SKIP_COPY = False
 SKIP_CACHE = False
 CLEAR_DEST = True
 SKIP_LOW_RES = False
+ONLY_LOW_RES = True
 
 
 ### TODO: verifica duplicati con i file che già sono nella destinazione
