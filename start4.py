@@ -60,7 +60,7 @@ if not SKIP_DUPLICATES:
     tic = time.perf_counter()
     PILoader.removeDuplicates()
     toc = time.perf_counter()
-    logger.info(f"[{toc - tic:0.4f} seconds]")
+    logger.info(f"[{toc - tic:0.2f} seconds]")
 
 logger.info("-----STATS------")
 tic = time.perf_counter()
@@ -80,7 +80,10 @@ if not SKIP_COPY:
 
     PIPostprocessing.copyDocuments(PIManager.destinationVolume, PIManager.extensionsToCopy_docs)
 
-    PIPostprocessing.generateLowResCopyForPhone(PIManager.destinationVolume, PIManager.extensionsToCopy_photo)
+    PIPostprocessing.generateLowResCopyForPhone_p(PIManager.destinationVolume, PIManager.extensionsToCopy_photo)
+
+    PIPostprocessing.lowResRatio()
+
 
     toc = time.perf_counter()
     logger.info(f"[{toc - tic:0.4f} seconds]")

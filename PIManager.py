@@ -18,7 +18,7 @@ extensionsToCopy_docs = ["gif", "png", "webp", "tif", "mkv", "avi", "bmp"]
 
 SKIP_DUPLICATES = True
 SKIP_COPY = False
-SKIP_CACHE = True
+SKIP_CACHE = False
 CLEAR_DEST = True
 
 myFileDic = {}

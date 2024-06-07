@@ -5,6 +5,8 @@ from PIL import Image
 import pillow_heif
 import os
 from pillow_heif import register_heif_opener
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import multiprocessing
 
 from PILogger import logger
 
@@ -13,6 +15,8 @@ totalCameras = {}
 totalYears = {}
 
 myFileArray = []
+totalSize = 0
+totalLowResSize = 0
 
 
 def setPhotoArray(theArray):
@@ -20,9 +24,11 @@ def setPhotoArray(theArray):
     myFileArray = theArray
     register_heif_opener()
 
+
 def getStats():
     #ESTENSIONE
 
+    global totalSize
     totalSize = 0
 
     for file in myFileArray:
@@ -63,6 +69,15 @@ def getStats():
     formattato = "{:.2f}".format(totalSize / 1024 / 1024 / 1024)
 
     logger.info("TOTAL SIZE: " + formattato + " GB")
+
+
+def lowResRatio():
+    ratio = totalLowResSize / totalSize
+    f1 = "{:.2f}".format(totalSize / 1024 / 1024 / 1024)
+    f2 = "{:.2f}".format(totalLowResSize / 1024 / 1024)
+    f3 = "{:.2f}".format(ratio*100)
+
+    logger.info("Original size: "+f1+" Gb" + " Low Res size: "+f2+" Mb [RATIO: " + f3+"%]")
 
 
 def clear_folder(folder_path):
@@ -123,7 +138,6 @@ def generateLowResCopyForPhone(destinationVolume, imgExtenesions):
 
                 input_jpeg_path = file.path
                 destinationFile = destinationFile + "/lr_" + file.filename + ".heic"
-                logger.info("[Low Res] " + file.path + " -> " + destinationFile)
 
                 # RISOLUZIONE DELL IOHONE 2778 x 1284 pixels
                 resize_and_convert_to_heic(input_jpeg_path, destinationFile)
@@ -132,41 +146,75 @@ def generateLowResCopyForPhone(destinationVolume, imgExtenesions):
             logger.info("Error generating lr " + file.path + " " + str(e))
 
 
+def generateLowResCopyForPhone_p(destinationVolume, imgExtenesions):
+    threadNum = int(multiprocessing.cpu_count() / 2)
+
+    try:
+        with ThreadPoolExecutor(max_workers=threadNum) as executor:
+            for file in myFileArray:
+                if file.getExtension() in imgExtenesions:
+                    destinationFile = destinationVolume + "/" + file.year + "/" + "LOW_RES" + "/" + str(file.date.month)
+                    destinationFilePath = Path(destinationFile)
+                    destinationFilePath.mkdir(parents=True, exist_ok=True)
+
+                    input_jpeg_path = file.path
+                    destinationFile = destinationFile + "/lr_" + file.filename + ".heic"
+                    logger.info("[Low Res] " + file.path + " -> " + destinationFile)
+
+                    executor.submit(resize_and_convert_to_heic, input_jpeg_path, destinationFile)
+                    # RISOLUZIONE DELL IOHONE 2778 x 1284 pixels
+                    #resize_and_convert_to_heic(input_jpeg_path, destinationFile)
+
+    except Exception as e:
+        logger.info("Error generating lr " + file.path + " " + str(e))
+
+
 def resize_and_convert_to_heic(input_path, output_path):
     try:
+        tottic = time.perf_counter()
+        global totalLowResSize
 
         # Apri l'immagine con Pillow
         logger.debug("Opening image")
         tic = time.perf_counter()
         img = Image.open(input_path)
         toc = time.perf_counter()
-        logger.info(f"[{toc - tic:0.4f} seconds]")
+        logger.debug(f"[{toc - tic:0.4f} seconds]")
 
-        base_width = int(img.size[0]/3)
+        base_width = int(img.size[0] / 3)
         wpercent = (base_width / float(img.size[0]))
         hsize = int((float(img.size[1]) * float(wpercent)))
         size = (base_width, hsize)
-
 
         # Ridimensiona l'immagine utilizzando l'algoritmo LANCZOS
         logger.debug("Resizing image")
         tic = time.perf_counter()
         img_resized = img.resize(size, Image.LANCZOS)
         toc = time.perf_counter()
-        logger.info(f"[{toc - tic:0.4f} seconds]")
+        logger.debug(f"[{toc - tic:0.4f} seconds]")
 
         logger.debug("Generating heif")
         tic = time.perf_counter()
         heif_file = pillow_heif.from_pillow(img_resized)
         toc = time.perf_counter()
-        logger.info(f"[{toc - tic:0.4f} seconds]")
+        logger.debug(f"[{toc - tic:0.4f} seconds]")
 
         logger.debug("Saving heif")
         tic = time.perf_counter()
         heif_file.save(output_path, quality=60)
         toc = time.perf_counter()
-        logger.info(f"[{toc - tic:0.4f} seconds]")
+        logger.debug(f"[{toc - tic:0.4f} seconds]")
         logger.debug("Done")
 
+        tic = time.perf_counter()
+        partialSize = os.path.getsize(output_path)
+        toc = time.perf_counter()
+        logger.debug(f"[{toc - tic:0.4f} seconds]")
+
+        totalLowResSize = totalLowResSize + partialSize
+        logger.info(
+            "[Low Res] " + input_path + "->" + output_path + f"\t[{toc - tottic:0.2f} seconds]" + f" [{partialSize / 1024:0.2f} Kb]")
+
+
     except Exception as e:
-        logger.error("Cant generate heif "+str(e))
+        logger.error("Cant generate heif " + str(e))
