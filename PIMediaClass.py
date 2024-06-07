@@ -4,7 +4,6 @@ import PIUtils
 
 
 class MediaFile:
-
     path = ""
     hashing = ""
     camera = ""
@@ -13,9 +12,10 @@ class MediaFile:
     date = None
     filename = ""
     fullMetadata = ""
+    size = 0
 
     def __repr__(self):
-        return f'MediaFile(path={self.path}, hashing={self.hashing}, camera={self.camera}, kind={self.kind}, year={self.year}, date={self.date},filename={self.filename})'
+        return f'MediaFile(path={self.path}, hashing={self.hashing}, camera={self.camera}, kind={self.kind}, year={self.year}, date={self.date}, filename={self.filename}, size={self.size})'
 
     def __init__(self, path=""):
         self.path = path
@@ -79,6 +79,12 @@ class MediaFile:
                     filename = filename.replace('"', '')
                     self.filename = filename
 
+                #kMDItemPhysicalSize
+                if "kMDItemPhysicalSize" in line:
+                    size = line.split("= ")[1]
+                    size = size.replace('"', '')
+                    self.size = int(size)
+
                 aDate = PIUtils.parse_date(line)
 
                 if aDate is not None:
@@ -95,9 +101,12 @@ class MediaFile:
                     logger.debug("Cant get year ")
                 else:
                     self.year = str(self.date.year)
-
             else:
                 logger.error("Cant find a valid date for " + self.path + " with " + output_a)
+
+            if self.camera is None or len(self.camera) == 0:
+                logger.debug("Cant find a valid camera for " + self.path)
+                self.camera = "Unknown Camera"
 
             self.fullMetadata = output_a
 
@@ -107,6 +116,10 @@ class MediaFile:
     def getExtension(self):
         try:
             part = self.path.split(".")
-            return part[len(part) - 1].lower()
+            part = part[len(part) - 1].lower()
+            if len(part) == 0:
+                return "NONE"
+            return part
         except Exception as e:
+            logger.error("Cant get extension of " + self.path + " with " + e)
             return "NONE"

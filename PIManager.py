@@ -9,17 +9,17 @@ rootdir = "/Users/utente/foto/foto 21-23"
 rootdir = "/Users/utente/foto/SSD960GB/Foto/Download di Amazon Photos/Immagini/2021"
 #rootdir = "/Users/utente/foto/SSD960GB/Foto"
 #rootdir = "/Users/utente/foto/SSD960GB/Foto/Download di Amazon Photos/Immagini"
-rootdir = "/Users/valerio/Downloads/img"
+rootdir = "/Users/valerio/foto"
 
 #### PARAMS
-destinationVolume = "/Users/utente/Documents/DEST"
-destinationMidPath = "foto"
-extensionsToCopy_photo = [".jpg", ".bmp", ".jpeg", ".gif", ".png", ".m4a", ".webp", ".heic", ".mov", ".dng", ".mp4"]
-extensionsToCopy_docs = [".gif", ".png", ".webp", ".tif", ".mkv", ".avi"]
-extensionsToCopy_other = [".nef", ".aae", "txt"]
+destinationVolume = "/Users/valerio/dest"
+extensionsToCopy_photo = ["jpg", "jpeg", "m4a", "heic", "mov", "dng", "mp4", "hevc"]
+extensionsToCopy_docs = ["gif", "png", "webp", "tif", "mkv", "avi", "bmp"]
 
 SKIP_DUPLICATES = True
-SKIP_COPY = True
+SKIP_COPY = False
+SKIP_CACHE = True
+CLEAR_DEST = True
 
 myFileDic = {}
 

@@ -1,10 +1,13 @@
 import os
+
+import PIManager
 from PILogger import logger
 import time
 from PIManager import parseInput
 from PIManager import rootdir
 from PIManager import SKIP_COPY
 from PIManager import SKIP_DUPLICATES
+from PIManager import CLEAR_DEST
 
 import PILoader
 import PIPreprocess
@@ -28,13 +31,14 @@ toc = time.perf_counter()
 logger.info("Read " + str(len(PILoader.myFileArray)) + " files")
 logger.info(f"[{toc - tic:0.4f} seconds]")
 
-##### BLOCK
-logger.info("Loading saved data...")
-tic = time.perf_counter()
-PILoader.loadData(rootdir)
-toc = time.perf_counter()
-logger.info("Loading data done")
-logger.info(f"[{toc - tic:0.4f} seconds]")
+if not PIManager.SKIP_CACHE:
+    ##### BLOCK
+    logger.info("Loading saved data...")
+    tic = time.perf_counter()
+    PILoader.loadData(rootdir)
+    toc = time.perf_counter()
+    logger.info("Loading data done")
+    logger.info(f"[{toc - tic:0.4f} seconds]")
 
 ##### BLOCK
 logger.info("Calculating hashes and metadata...")
@@ -66,5 +70,17 @@ toc = time.perf_counter()
 logger.info(f"[{toc - tic:0.4f} seconds]")
 
 if not SKIP_COPY:
+    tic = time.perf_counter()
+    if CLEAR_DEST:
+        logger.info("Cleaning destination folder...")
+        PIPostprocessing.clear_folder(PIManager.destinationVolume)
+
     logger.info("Start copy files:")
-    PIPostprocessing.copyFiles()
+    PIPostprocessing.copyFiles(PIManager.destinationVolume, PIManager.extensionsToCopy_photo, PIManager.extensionsToCopy_docs)
+
+    PIPostprocessing.copyDocuments(PIManager.destinationVolume, PIManager.extensionsToCopy_docs)
+
+    PIPostprocessing.generateLowResCopyForPhone(PIManager.destinationVolume, PIManager.extensionsToCopy_photo)
+
+    toc = time.perf_counter()
+    logger.info(f"[{toc - tic:0.4f} seconds]")
